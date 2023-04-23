@@ -1,0 +1,135 @@
+---
+title: "DataWranglingProject"
+output: pdf_document
+date: "2023-04-21"
+---
+
+
+```{r}
+install.packages("devtools")
+devtools::install_github("vdeminstitute/vdemdata")
+
+library(vdemdata)
+library(data.table)
+library(knitr)
+library(kableExtra)
+library(states)
+library(countrycode)
+
+```
+
+```{r}
+vdem <- demcon::get_vdem(write_out = FALSE)
+data.table::setDT(vdem)
+```
+
+```{r}
+head(vdem)
+```
+
+```{r}
+library(vdemdata)
+head(vdem)
+```
+
+```{r}
+
+#     
+# v2elmulpar_osp v2elfrfair_osp v2elfrfair_osp_leg v2elfrfair_osp_ex v2expathhg 
+# v2ex_legconhos v2ex_hosw   v2clacjstw_osp v2clacjstm_osp
+# v2cltrnslw_osp v2exaphogp
+```
+
+```{r}
+
+df <- vdem
+
+```
+
+```{r}
+n <- names(df)
+```
+
+```{r}
+library(tidyverse)
+```
+
+```{r}
+#df1[sapply(df1, is.character)] <- lapply(df1[sapply(df1, is.character)], as.factor)
+
+#cat_df <- df[ ,sapply(df, is.factor)]
+#con_df <- df1[,!sapply(df, is.factor)]
+
+df$continent <- countrycode(df$country_text_id, "iso3c", "continent")
+
+
+
+distinct(df %>% group_by(continent) %>% filter(continent == "Oceania") %>% select(country_name))
+
+```
+
+```{r}
+head(df$continent)
+```
+
+
+#The V-Dem Electoral Democracy Index consists of 5 subcomponents: Electoral democracy index, Liberal democracy index, Participatory democracy index, Deliberative democracy index and Egalitarian democracy index 
+```{r}
+#Linear model to find vdem indices
+#Electoral democracy index
+
+summary(lm(df$v2x_polyarchy ~ df$v2x_freexp_altinf   + df$v2x_frassoc_thick + df$v2x_suffr + df$v2xel_frefair + df$v2x_elecoff , data = df))
+
+
+#Source(s): v2x_freexp_altinf v2x_frassoc_thick v2x_suffr v2xel_frefair v2x_elecoff
+#association thick (v2x_frassoc_thick), clean elections (v2xel_frefair), freedom of expression (v2x_freexp_altinf), elected officials (v2x_elecoff), and suffrage (v2x_suffr) are the five impacting variables in the calculation of Polyarchy/ Electoral Democracy Index
+
+```
+
+```{r}
+#Just a sample
+
+plot(df$v2x_polyarchy ~ df$v2x_freexp_altinf   + df$v2x_frassoc_thick + df$v2x_suffr + df$v2xel_frefair + df$v2x_elecoff)
+```
+
+
+```{r}
+df %>% ggplot(aes(df$continent, df$v2x_polyarchy)) + geom_boxplot()
+
+
+df %>% ggplot(aes(df$continent, df$v2x_polyarchy)) + geom_line()
+
+```
+```{r}
+#2.Liberal Democracy Index
+
+summary(lm(df$v2x_libdem ~ df$v2x_liberal + df$v2x_polyarchy, data = df))
+df %>% ggplot(aes(df$continent, df$v2x_libdem)) + geom_boxplot()
+
+```
+
+```{r}
+#3.Participatory democracy index (D) (v2x_partipdem)
+
+summary(lm(df$v2x_partipdem ~ df$v2x_partip + df$v2x_polyarchy, data = df))
+
+```
+```{r}
+#4.Deliberative democracy index
+summary(lm(df$v2x_delibdem ~ df$v2xdl_delib + df$v2x_polyarchy, data = df))
+
+
+```
+```{r}
+#5.Egalitarian democracy index
+
+summary(lm(df$v2x_egaldem ~ df$v2x_egal + df$v2x_polyarchy , data = df))
+
+```
+
+
+
+```{r}
+Text analysis on  
+```
+
